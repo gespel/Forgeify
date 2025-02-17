@@ -1,6 +1,7 @@
 package image_builder
 
 import (
+	"Forgeify/logging"
 	//"github.com/docker/docker/api/types"
 	"context"
 	"fmt"
@@ -8,7 +9,6 @@ import (
 	"github.com/docker/docker/client"
 	"github.com/docker/docker/pkg/archive"
 	"io"
-	"os"
 	"time"
 	//"github.com/docker/docker/pkg/archive"
 )
@@ -20,6 +20,7 @@ type RepoWorker struct {
 
 func NewRepoWorker(name string) RepoWorker {
 	cli, _ := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+
 	return RepoWorker{name: name, cli: cli}
 }
 
@@ -45,6 +46,12 @@ func (repoW RepoWorker) BuildImage() {
 		fmt.Println(err)
 		return
 	}
+
+	logger := logging.NewFLog("IMAGE-BUILDER")
+
 	//source, err := os.Open(repoW.name + "-build.log")
-	io.Copy(os.Stdout, w.Body)
+	//io.Copy(logger, w.Body)
+	io.Copy(logger, w.Body)
+	//defer w.Body.Close()
+
 }
