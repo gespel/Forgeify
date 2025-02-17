@@ -7,6 +7,8 @@ import (
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/client"
 	"github.com/docker/docker/pkg/archive"
+	"io"
+	"os"
 	"time"
 	//"github.com/docker/docker/pkg/archive"
 )
@@ -30,17 +32,19 @@ func (repoW RepoWorker) BuildImage() {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*120)
 	defer cancel()
 
-	_, err = repoW.cli.ImageBuild(
+	w, err := repoW.cli.ImageBuild(
 		ctx,
 		tar,
 		types.ImageBuildOptions{
 			Dockerfile: "Dockerfile",
 			Tags:       []string{"" + repoW.name},
-			Remove:     true,
+			Remove:     false,
 		})
 	if err != nil {
 		fmt.Println("Error while building image!")
 		fmt.Println(err)
 		return
 	}
+	//source, err := os.Open(repoW.name + "-build.log")
+	io.Copy(os.Stdout, w.Body)
 }
