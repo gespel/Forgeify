@@ -18,6 +18,14 @@ type RepoWorker struct {
 	url  string
 }
 
+func folderExists(path string) bool {
+	info, err := os.Stat(path)
+	if os.IsNotExist(err) {
+		return false
+	}
+	return err == nil && info.IsDir()
+}
+
 func NewRepoWorker(name string, url string) *RepoWorker {
 	InfoLogger = log.New(os.Stdout, "[REPO-WORKER] INFO: ", log.Ldate|log.Ltime|log.Lshortfile)
 	WarningLogger = log.New(os.Stdout, "[REPO-WORKER] WARNING: ", log.Ldate|log.Ltime|log.Lshortfile)
@@ -26,20 +34,23 @@ func NewRepoWorker(name string, url string) *RepoWorker {
 	InfoLogger.Printf("Repository name: %s \n", name)
 	InfoLogger.Printf("Repository url: %s \n", url)
 	InfoLogger.Printf("================================\n")
+	if !folderExists("repositorys") {
+		os.Mkdir("repositorys", os.ModePerm)
+	}
 	return &RepoWorker{name, url}
 }
 
 func (repo RepoWorker) Scrape(redownload bool) bool {
 	if redownload {
 		WarningLogger.Printf("Deleting old repository: %s\n", repo.name)
-		err := os.RemoveAll(repo.name)
+		err := os.RemoveAll("repositorys/"+repo.name)
 		if err != nil {
 			fmt.Println(err)
 			return false
 		}
 	}
 
-	out, err := git.PlainClone(repo.name, false, &git.CloneOptions{
+	out, err := git.PlainClone("repositorys/"+repo.name, false, &git.CloneOptions{
 		URL:      repo.url,
 		Progress: nil,
 	})
