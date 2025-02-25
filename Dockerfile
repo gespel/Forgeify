@@ -1,4 +1,6 @@
-FROM ubuntu:latest
+FROM golang:1.24-bookworm
 LABEL authors="stenh"
 
-ENTRYPOINT ["top", "-b"]
+COPY . .
+RUN go build
+ENTRYPOINT ["./Forgeify"]
