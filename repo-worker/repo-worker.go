@@ -34,8 +34,8 @@ func NewRepoWorker(name string, url string) *RepoWorker {
 	InfoLogger.Printf("Repository name: %s \n", name)
 	InfoLogger.Printf("Repository url: %s \n", url)
 	InfoLogger.Printf("================================\n")
-	if !folderExists("repositorys") {
-		os.Mkdir("repositorys", os.ModePerm)
+	if !folderExists("repositories") {
+		os.Mkdir("repositories", os.ModePerm)
 	}
 	return &RepoWorker{name, url}
 }
@@ -43,14 +43,14 @@ func NewRepoWorker(name string, url string) *RepoWorker {
 func (repo RepoWorker) Scrape(redownload bool) bool {
 	if redownload {
 		WarningLogger.Printf("Deleting old repository: %s\n", repo.name)
-		err := os.RemoveAll("repositorys/"+repo.name)
+		err := os.RemoveAll("repositories/"+repo.name)
 		if err != nil {
 			fmt.Println(err)
 			return false
 		}
 	}
 
-	out, err := git.PlainClone("repositorys/"+repo.name, false, &git.CloneOptions{
+	out, err := git.PlainClone("repositories/"+repo.name, false, &git.CloneOptions{
 		URL:      repo.url,
 		Progress: nil,
 	})
